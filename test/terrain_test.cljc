@@ -17,7 +17,7 @@
 ;; -- smoke test (fixed from scaffold placeholder) --
 
 (deftest namespace-loads
-  (is (some? (the-ns 'terrain))))
+  (is (some? (find-ns 'terrain))))
 
 ;; -- noise.rs --
 
