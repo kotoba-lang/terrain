@@ -1,5 +1,16 @@
 # kotoba-lang/terrain
 
+`src/terrain_golden.kotoba` is the safety-first policy-v7 qualification slice
+for canonical cosine-interpolated value noise, four-octave FBM/height shaping,
+and wind-derived Gerstner wave parameters. Tests compare the existing CLJC
+domain oracle with the Kotoba reference executor, restricted JavaScript, and
+typed Wasm, without host capabilities or host transcendental imports.
+
+The canonical noise slice begins after the existing i32 lattice hash values;
+general procedural noise remains CLJC until Kotoba has qualified i32 wrapping
+multiply/shift semantics. Structured heightmaps and water meshes likewise
+remain CLJC until a structured f64 collection ABI is available.
+
 Zero-dep portable `.cljc` — restored from the legacy `kami-engine/kami-terrain` Rust crate
 (deleted in `kotoba-lang/kami-engine` PR #82, "Remove Rust workspace from kami-engine") as
 part of the **clj-wgsl migration** (ADR-2607010930, `com-junkawasaki/root`).
