@@ -44,3 +44,30 @@
     (is (= :kotoba.floating-point/ieee-754-f32-f64-v7
            (:floating-point-policy js-artifact)))
     (is (= #{} (set (:effects (:kir js-artifact)))))))
+
+(deftest lattice-hash-agrees-with-cljc-across-reference-js-and-wasm
+  (let [source (slurp "src/terrain_golden.kotoba")
+        coords [[0 0] [1 2] [-1 7] [2147483647 -2147483648]
+                [4294967295 4294967296] [-9223372036854775808 9223372036854775807]]
+        hash2d (var-get #'terrain.noise/hash2d)
+        expected (mapv (fn [[x y]] (hash2d x y)) coords)
+        js-artifact (compiler/compile-source source :js-kotoba-v1)
+        wasm-artifact (compiler/compile-source source :wasm32-browser-kotoba-v1)
+        reference (mapv (fn [args]
+                          (ir/execute (:kir js-artifact) 'lattice-hash args))
+                        coords)
+        js64 (.encodeToString (java.util.Base64/getEncoder)
+                              (.getBytes ^String (:source js-artifact) "UTF-8"))
+        wasm64 (.encodeToString (java.util.Base64/getEncoder) (:bytes wasm-artifact))
+        coord-js (str "[" (str/join "," (map (fn [[x y]] (str "[" x "n," y "n]")) coords)) "]")
+        expected-js (str "[" (str/join "," (map #(Double/toString (double %)) expected)) "]")
+        script (str "const coords=" coord-js ",expected=" expected-js ";"
+                    "Promise.all([import('data:text/javascript;base64," js64 "'),"
+                    "WebAssembly.instantiate(Buffer.from('" wasm64 "','base64'),{})]).then(([j,w])=>{"
+                    "const a=j.instantiateKotoba({}),b=w.instance.exports;"
+                    "for(let i=0;i<coords.length;i++){const [x,y]=coords[i],av=a['lattice-hash'](x,y),bv=b['lattice-hash'](x,y);"
+                    "if(!Object.is(av,bv)||Math.abs(av-expected[i])>1e-15)process.exit(2)}})"
+                    ".catch(e=>{console.error(e);process.exit(99)})")
+        result (shell/sh "node" "--input-type=module" "-e" script)]
+    (is (= expected reference))
+    (is (zero? (:exit result)) (:err result))))

@@ -1,7 +1,19 @@
 (ns terrain-golden
-  (:export [canonical-value-noise canonical-fbm canonical-height
+  (:export [lattice-hash canonical-value-noise canonical-fbm canonical-height
             primary-wave-amplitude primary-wave-wavelength primary-wave-speed
             secondary-wave-direction-x secondary-wave-direction-y]))
+
+(defn lattice-hash [x :i64 y :i64] :f64
+  (let [n0 (i32-wrapping-add (i32-wrapping-mul x 1619)
+                             (i32-wrapping-mul y 31337))
+        n1 (i32-wrapping-mul n0 (i32-wrapping-mul n0 n0))
+        n2 (i32-xor (i32-shift-right n1 13) n1)
+        inner (i32-wrapping-add
+               (i32-wrapping-mul n2 (i32-wrapping-mul n2 60493))
+               19990303)
+        n3 (i32-wrapping-add (i32-wrapping-mul n2 inner) 1376312589)
+        positive (bit-and n3 2147483647)]
+    (f64-div (i64-to-f64-checked positive) 2147483647.0)))
 
 (defn cosine-weight [t :f64] :f64
   (f64-mul 0.5
