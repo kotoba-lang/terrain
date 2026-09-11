@@ -46,5 +46,5 @@ ClojureScript.
 ## Develop
 
 ```bash
-clojure -M:test
+kbb -M:test
 ```
