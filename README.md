@@ -34,7 +34,7 @@ Restored. All 7 original Rust modules (913 lines total) are ported 1:1 to CLJC:
 | `terrain/splatmap.cljc` | `splatmap.rs` (107 lines) | Per-vertex material blend weights (grass/rock/sand/snow) from height + slope rules |
 | `terrain/water.cljc` | `water.rs` (271 lines) | Gerstner wave parameter sets (fixed defaults or derived from wind) + flat water grid mesh |
 
-All 14 original Rust `#[test]`s are ported 1:1 to `test/terrain_test.cljc` (same assertions,
+All 14 original Rust `#[test]`s are ported 1:1 to `test/terrain_test.cljk` (same assertions,
 translated to `clojure.test`), plus the original scaffold's `namespace-loads` smoke test —
 **15 tests / 11097 assertions, 0 failures.**
 
